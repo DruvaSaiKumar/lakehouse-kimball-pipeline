@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: silver
+    description: >
+      Cleansed, validated and deduplicated Parquet written by the PySpark job (pipeline/spark_silver.py).
+      Rejected rows are in the quarantine area and are never visible here.
+    meta:
+      # dbt-duckdb reads these files in place; {name} is replaced with the table name.
+      external_location: "read_parquet('{{ var('silver_path') }}/{name}/**/*.parquet', hive_partitioning = true)"
+    tables:
+      - name: bookings
+        description: One row per booking_id, latest valid version. Partitioned by booking_date.
+      - name: passengers
+        description: One row per (passenger_id, updated_at) change record, i.e. the version history.
+      - name: routes
+        description: Route reference data.

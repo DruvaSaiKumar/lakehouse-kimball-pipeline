@@ -1,0 +1,96 @@
+version: 2
+
+models:
+  - name: stg_bookings
+    columns:
+      - name: booking_id
+        data_tests: [unique, not_null]
+      - name: fare_amount
+        data_tests:
+          - not_null
+
+  - name: stg_passengers
+    columns:
+      - name: passenger_id
+        data_tests: [not_null]
+      - name: loyalty_tier
+        data_tests:
+          - accepted_values:
+              values: ["NONE", "BLUE", "SILVER", "GOLD"]
+
+  - name: dim_date
+    description: One row per calendar day.
+    columns:
+      - name: date_key
+        data_tests: [unique, not_null]
+
+  - name: dim_route
+    description: Route dimension with an unknown member (key -1).
+    columns:
+      - name: route_key
+        data_tests: [unique, not_null]
+      - name: route_type
+        data_tests:
+          - accepted_values:
+              values: ["SHORT", "MEDIUM", "LONG", "UNKNOWN"]
+
+  - name: dim_passenger
+    description: >
+      Type 2 slowly changing dimension. One row per distinct version of a passenger, with a
+      half-open validity window (valid_from <= date < valid_to) and an unknown member (key -1).
+    columns:
+      - name: passenger_key
+        description: md5(passenger_id | valid_from); stable across rebuilds.
+        data_tests: [unique, not_null]
+      - name: loyalty_tier
+        data_tests:
+          - accepted_values:
+              values: ["NONE", "BLUE", "SILVER", "GOLD", "UNKNOWN"]
+      - name: valid_from
+        data_tests: [not_null]
+      - name: valid_to
+        data_tests: [not_null]
+
+  - name: fact_bookings
+    description: "Grain: one row per booking (latest valid version)."
+    columns:
+      - name: booking_id
+        data_tests: [unique, not_null]
+      - name: passenger_key
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_passenger')
+              field: passenger_key
+      - name: route_key
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_route')
+              field: route_key
+      - name: booking_date_key
+        data_tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: travel_date_key
+        data_tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: status
+        data_tests:
+          - accepted_values:
+              values: ["CONFIRMED", "CANCELLED", "CHECKED_IN", "FLOWN"]
+
+  - name: mart_daily_route_revenue
+    description: Bookings, cancellations and revenue per travel date and route.
+    columns:
+      - name: cancellation_rate
+        data_tests:
+          - value_in_range:
+              min_value: 0
+              max_value: 1
+
+  - name: mart_revenue_by_loyalty_tier
+    description: Revenue by the passenger's loyalty tier at booking time.

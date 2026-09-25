@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# Generated data and build output
+data/
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+spark-warehouse/
+metastore_db/
+derby.log
+*.duckdb
+*.duckdb.wal
