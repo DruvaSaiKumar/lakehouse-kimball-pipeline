@@ -20,7 +20,7 @@ def test_dags_import_cleanly(dagbag):
 
 
 def test_lakehouse_dag_shape(dagbag):
-    dag = dagbag.get_dag("lakehouse_daily")
+    dag = dagbag.dags["lakehouse_daily"]  # .dags avoids get_dag(), which needs a metadata DB
     assert [t.task_id for t in dag.topological_sort()] == [
         "land_raw_data",
         "spark_silver",
@@ -32,5 +32,5 @@ def test_lakehouse_dag_shape(dagbag):
 
 
 def test_every_task_retries(dagbag):
-    dag = dagbag.get_dag("lakehouse_daily")
+    dag = dagbag.dags["lakehouse_daily"]  # .dags avoids get_dag(), which needs a metadata DB
     assert all(t.retries >= 1 for t in dag.tasks)
