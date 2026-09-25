@@ -52,7 +52,7 @@ def test_tables_are_identical(layer, pattern, spark_out, duckdb_silver):
         cols = con.execute(
             f"DESCRIBE SELECT * FROM read_parquet('{path}', hive_partitioning = true)"
         ).fetchall()
-        # Spark marks timestamps UTC-adjusted and DuckDB does not; normalise both to naive UTC.
+        # Spark marks timestamps UTC-adjusted and DuckDB does not; normalize both to naive UTC.
         select = ", ".join(
             f'CAST("{name}" AS TIMESTAMP) AS "{name}"' if "TIMESTAMP" in kind else f'"{name}"'
             for name, kind, *_ in cols

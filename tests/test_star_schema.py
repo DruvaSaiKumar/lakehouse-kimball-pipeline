@@ -30,7 +30,7 @@ def test_changed_passengers_have_two_contiguous_versions(wh):
         assert (versions, str(first_from), str(last_to), current) == (2, "1900-01-01", "9999-12-31", 1)
 
 
-def test_bookings_resolve_to_the_version_valid_on_the_booking_date(wh):
+def test_fact_joins_to_version_valid_at_booking(wh):
     """The point-in-time join: every attributed booking falls inside its version's window."""
     bad = scalar(
         wh,

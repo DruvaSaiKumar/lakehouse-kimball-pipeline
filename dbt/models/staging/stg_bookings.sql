@@ -1,4 +1,4 @@
--- Type-normalising view over silver. Spark writes timestamps as UTC-adjusted and DuckDB as naive, so
+-- Type-normalizing view over silver. Spark writes timestamps as UTC-adjusted and DuckDB as naive, so
 -- both are cast to a naive UTC timestamp here and nothing downstream has to care which engine ran.
 select
     booking_id,

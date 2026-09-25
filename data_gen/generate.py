@@ -87,7 +87,7 @@ def generate(landing: str | Path, seed: int = 11) -> dict[str, int]:
     route_codes = [r[0] for r in routes]
     _write(landing / "routes" / "routes.csv", ROUTE_COLS, routes)
 
-    # ---- passengers, day 1: full extract, 20 rows with messy casing/whitespace to be cleaned
+    # passengers, day 1: full extract, 20 rows with messy casing/whitespace to be cleaned
     day1_p = [_passenger(n, rng, DAY1) for n in range(1, N_DAY1_PASSENGERS + 1)]
     day1_written = [list(r) for r in day1_p]
     for row in day1_written[:20]:
@@ -95,7 +95,7 @@ def generate(landing: str | Path, seed: int = 11) -> dict[str, int]:
     _write(landing / "passengers" / f"load_date={DAY1}" / "passengers.csv", PASSENGER_COLS,
            day1_written)  # fmt: skip
 
-    # ---- passengers, day 2: changes only (+ new, no-op, duplicate and invalid rows)
+    # passengers, day 2: changes only (+ new, no-op, duplicate and invalid rows)
     day2_p: list[list] = []
     for row in day1_p[:N_TIER_OR_AIRPORT_CHANGES]:
         changed = list(row)
@@ -117,11 +117,11 @@ def generate(landing: str | Path, seed: int = 11) -> dict[str, int]:
     rng.shuffle(day2_p)
     _write(landing / "passengers" / f"load_date={DAY2}" / "passengers.csv", PASSENGER_COLS, day2_p)
 
-    # ---- bookings, day 1
+    # bookings, day 1
     day1_b = [_booking(n, rng, DAY1, N_DAY1_PASSENGERS, route_codes) for n in range(1, N_DAY1_BOOKINGS + 1)]
     _write(landing / "bookings" / f"load_date={DAY1}" / "bookings.csv", BOOKING_COLS, day1_b)
 
-    # ---- bookings, day 2
+    # bookings, day 2
     n = N_DAY1_BOOKINGS
     valid_new = []
     for _ in range(N_NEW_BOOKINGS - N_UNKNOWN_PASSENGER):

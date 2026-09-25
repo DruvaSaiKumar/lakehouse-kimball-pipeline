@@ -6,7 +6,7 @@ silver tables or the metrics differ.
 Design notes:
   * Everything is read as strings and cast explicitly. A failed cast becomes NULL (ANSI mode off),
     which is then reported as `malformed_value` instead of Spark silently mis-typing a column.
-  * No Python UDFs: every rule is a native Spark expression, so it stays on the JVM and optimiser.
+  * No Python UDFs: every rule is a native Spark expression, so it stays on the JVM and optimizer.
   * The output is fully rebuilt on each run (idempotent), which is right at this size. At scale this
     is where you would switch to incremental loads keyed on `load_date`.
 """
@@ -77,7 +77,7 @@ def build_silver(landing: Path, silver: Path, quarantine: Path, spark: SparkSess
     for path in (silver, quarantine):
         _reset(path)
 
-    # ---- routes
+    # routes
     routes = (
         _read_csv(spark, landing / "routes")
         .select(
@@ -90,7 +90,7 @@ def build_silver(landing: Path, silver: Path, quarantine: Path, spark: SparkSess
     routes.write.mode("overwrite").parquet(str(silver / "routes"))
     route_codes = [r["route_code"] for r in routes.select("route_code").collect()]  # ~50 codes
 
-    # ---- bookings
+    # bookings
     raw = _read_csv(spark, landing / "bookings")
     raw_cols = ["booking_id", "passenger_id", "route_code", "booking_ts", "travel_date",
                 "fare_amount", "currency", "status", "channel", "updated_ts"]  # fmt: skip
@@ -141,7 +141,7 @@ def build_silver(landing: Path, silver: Path, quarantine: Path, spark: SparkSess
     bookings_metrics = _summarise(classified, spark.read.parquet(str(silver / "bookings")))
     classified.unpersist()
 
-    # ---- passengers
+    # passengers
     raw_p = _read_csv(spark, landing / "passengers")
     p_cols = ["passenger_id", "full_name", "email", "loyalty_tier", "home_airport", "updated_at"]
     parsed_p = raw_p.select(

@@ -57,7 +57,7 @@ def build_silver(landing: Path, silver: Path, quarantine: Path) -> dict:
         hive = str(partitioned).lower()
         return f"read_csv('{glob}', header = true, all_varchar = true, hive_partitioning = {hive})"
 
-    # ---- routes: static reference data
+    # routes: static reference data
     con.execute(f"""
         CREATE TEMP TABLE routes AS
         SELECT UPPER(TRIM(route_code)) AS route_code, UPPER(TRIM(origin)) AS origin,
@@ -67,7 +67,7 @@ def build_silver(landing: Path, silver: Path, quarantine: Path) -> dict:
     """)
     _copy(con, "SELECT * FROM routes", silver / "routes")
 
-    # ---- bookings
+    # bookings
     con.execute(f"""
         CREATE TEMP TABLE bookings_raw AS
         SELECT *, CAST(load_date AS VARCHAR) AS load_date_str FROM {csv("bookings")}
@@ -128,7 +128,7 @@ def build_silver(landing: Path, silver: Path, quarantine: Path) -> dict:
         quarantine / "bookings",
     )
 
-    # ---- passengers
+    # passengers
     con.execute(f"""
         CREATE TEMP TABLE passengers_raw AS
         SELECT *, CAST(load_date AS VARCHAR) AS load_date_str FROM {csv("passengers")}
